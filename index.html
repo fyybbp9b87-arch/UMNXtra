@@ -1,0 +1,756 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UMNXtraAI</title>
+
+<style>
+
+:root{
+--bg:#07090d;
+--sidebar:#10161d;
+--panel:#131b24;
+
+--text:#f5f7fa;
+
+--red:#ff3048;
+--green:#00ff99;
+
+--redGlow:rgba(255,48,72,0.25);
+--greenGlow:rgba(0,255,153,0.20);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html,body{
+height:100%;
+overflow:hidden;
+font-family:Arial;
+background:var(--bg);
+color:var(--text);
+}
+
+/* APP */
+#app{
+display:flex;
+height:100vh;
+width:100vw;
+overflow:hidden;
+}
+
+/* SIDEBAR */
+#sidebar{
+position:fixed;
+top:0;
+left:0;
+bottom:0;
+
+width:240px;
+
+background:
+linear-gradient(
+180deg,
+#0e141a,
+#131b24
+);
+
+padding:72px 14px 14px;
+
+display:flex;
+flex-direction:column;
+gap:10px;
+
+transition:transform 0.3s ease;
+
+z-index:200;
+
+border-right:
+1px solid rgba(255,255,255,0.05);
+}
+
+/* CLOSED */
+#sidebar.closed{
+transform:translateX(-100%);
+}
+
+/* LOGO */
+.logo{
+font-size:22px;
+font-weight:bold;
+
+margin-bottom:10px;
+
+background:
+linear-gradient(
+90deg,
+var(--red),
+var(--green)
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+/* SIDEBAR BUTTONS */
+.sidebtn{
+padding:13px;
+
+border:none;
+border-radius:14px;
+
+cursor:pointer;
+
+background:#1b2430;
+
+color:white;
+
+font-weight:600;
+
+transition:0.2s;
+}
+
+.sidebtn:hover{
+
+transform:translateY(-2px);
+
+background:
+linear-gradient(
+135deg,
+rgba(255,48,72,0.15),
+rgba(0,255,153,0.12)
+);
+
+box-shadow:
+0 0 18px var(--redGlow),
+0 0 18px var(--greenGlow);
+
+}
+
+/* MAIN */
+#main{
+flex:1;
+
+display:flex;
+flex-direction:column;
+
+height:100%;
+width:100%;
+
+overflow:hidden;
+}
+
+/* TOPBAR */
+#topbar{
+position:fixed;
+
+top:0;
+left:0;
+right:0;
+
+height:60px;
+
+display:flex;
+align-items:center;
+gap:12px;
+
+padding:0 14px;
+
+background:
+rgba(10,12,15,0.92);
+
+backdrop-filter:blur(10px);
+
+border-bottom:
+1px solid rgba(255,255,255,0.05);
+
+z-index:300;
+}
+
+/* TOGGLE */
+#toggle{
+
+width:42px;
+height:42px;
+
+border:none;
+
+border-radius:12px;
+
+cursor:pointer;
+
+font-size:22px;
+
+color:white;
+
+background:
+linear-gradient(
+135deg,
+var(--red),
+var(--green)
+);
+
+box-shadow:
+0 0 15px var(--redGlow),
+0 0 15px var(--greenGlow);
+
+}
+
+/* TITLE */
+#title{
+font-size:18px;
+font-weight:bold;
+
+background:
+linear-gradient(
+90deg,
+var(--red),
+var(--green)
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+/* CHAT */
+#chat{
+flex:1;
+
+overflow-y:auto;
+
+padding:74px 12px 12px;
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+width:100%;
+max-width:950px;
+
+margin:auto;
+}
+
+/* MESSAGE */
+.msg{
+padding:14px;
+
+border-radius:18px;
+
+max-width:90%;
+
+line-height:1.45;
+
+word-wrap:break-word;
+overflow-wrap:break-word;
+}
+
+/* USER */
+.user{
+align-self:flex-end;
+
+background:
+linear-gradient(
+135deg,
+rgba(255,48,72,0.16),
+rgba(0,255,153,0.10)
+);
+
+border:
+1px solid rgba(255,255,255,0.06);
+
+box-shadow:
+0 0 18px rgba(255,48,72,0.10);
+}
+
+/* AI */
+.ai{
+align-self:flex-start;
+
+background:
+rgba(255,255,255,0.05);
+
+border:
+1px solid rgba(255,255,255,0.06);
+
+backdrop-filter:blur(8px);
+}
+
+/* IMAGE */
+.msg img{
+width:100%;
+max-width:100%;
+
+border-radius:16px;
+
+display:block;
+
+margin-top:8px;
+
+box-shadow:
+0 0 25px rgba(255,48,72,0.15),
+0 0 25px rgba(0,255,153,0.12);
+}
+
+/* BOTTOM */
+#bottom{
+padding:10px;
+
+background:
+rgba(10,12,15,0.95);
+
+border-top:
+1px solid rgba(255,255,255,0.05);
+
+flex-shrink:0;
+}
+
+/* INPUT WRAP */
+#inputwrap{
+display:flex;
+gap:8px;
+align-items:flex-end;
+}
+
+/* TEXTAREA */
+textarea{
+flex:1;
+
+height:54px;
+max-height:120px;
+
+resize:none;
+
+padding:14px;
+
+border:none;
+outline:none;
+
+border-radius:16px;
+
+background:#1a222c;
+
+color:white;
+
+font-size:15px;
+}
+
+/* BUTTONS */
+.action{
+border:none;
+
+padding:13px 15px;
+
+border-radius:14px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+color:white;
+
+transition:0.2s;
+}
+
+/* SEND */
+#send{
+background:
+linear-gradient(
+135deg,
+var(--red),
+var(--green)
+);
+
+box-shadow:
+0 0 18px var(--redGlow),
+0 0 18px var(--greenGlow);
+}
+
+/* IMG */
+#imgbtn{
+background:#1a222c;
+}
+
+/* MOBILE */
+@media(max-width:700px){
+
+#sidebar{
+width:220px;
+}
+
+.msg{
+max-width:100%;
+font-size:15px;
+}
+
+textarea{
+font-size:16px;
+}
+
+.action{
+padding:12px;
+}
+
+}
+
+/* LOADING */
+.loading{
+opacity:0.7;
+font-style:italic;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="closed">
+
+<div class="logo">
+UMNXtraAI
+</div>
+
+<button class="sidebtn" onclick="news('general')">
+📰 News
+</button>
+
+<button class="sidebtn" onclick="news('sports')">
+⚽ Sports
+</button>
+
+<button class="sidebtn" onclick="weather()">
+🌦 Weather
+</button>
+
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- TOPBAR -->
+<div id="topbar">
+
+<button id="toggle">
+☰
+</button>
+
+<div id="title">
+UMNXtraAI
+</div>
+
+</div>
+
+<!-- CHAT -->
+<div id="chat"></div>
+
+<!-- INPUT -->
+<div id="bottom">
+
+<div id="inputwrap">
+
+<textarea
+id="input"
+placeholder="Ask UMNXtraAI..."
+></textarea>
+
+<button id="send" class="action">
+SEND
+</button>
+
+<button id="imgbtn" class="action">
+IMG
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const sidebar =
+document.getElementById("sidebar");
+
+const toggle =
+document.getElementById("toggle");
+
+toggle.onclick = () => {
+
+sidebar.classList.toggle("closed");
+
+};
+
+const chat =
+document.getElementById("chat");
+
+const input =
+document.getElementById("input");
+
+let messages=[];
+
+/* ADD MESSAGE */
+function add(content,type){
+
+const div =
+document.createElement("div");
+
+div.className =
+"msg "+type;
+
+div.innerHTML=content;
+
+chat.appendChild(div);
+
+chat.scrollTop=
+chat.scrollHeight;
+
+return div;
+
+}
+
+/* CHAT */
+async function send(){
+
+const text =
+input.value.trim();
+
+if(!text)return;
+
+add(text,"user");
+
+messages.push({
+role:"user",
+content:text
+});
+
+input.value="";
+
+const loading =
+add("Thinking...","ai");
+
+loading.classList.add("loading");
+
+try{
+
+const r =
+await fetch(
+"/api/chat",
+{
+method:"POST",
+headers:{
+"Content-Type":
+"application/json"
+},
+body:JSON.stringify({
+messages
+})
+}
+);
+
+const d =
+await r.json();
+
+loading.remove();
+
+const reply =
+d.reply || "No response";
+
+messages.push({
+role:"assistant",
+content:reply
+});
+
+add(reply,"ai");
+
+}catch{
+
+loading.innerHTML =
+"Chat error.";
+
+}
+
+}
+
+/* IMAGE */
+async function generateImage(){
+
+const text =
+input.value.trim();
+
+if(!text)return;
+
+add(text,"user");
+
+input.value="";
+
+const loading =
+add("Generating image...","ai");
+
+loading.classList.add("loading");
+
+try{
+
+const r =
+await fetch(
+"/api/image",
+{
+method:"POST",
+headers:{
+"Content-Type":
+"application/json"
+},
+body:JSON.stringify({
+prompt:text
+})
+}
+);
+
+const d =
+await r.json();
+
+loading.remove();
+
+if(d.image){
+
+add(`
+<img src="${d.image}" alt="Generated Image">
+`,"ai");
+
+}else{
+
+add("Image failed.","ai");
+
+}
+
+}catch(e){
+
+loading.innerHTML =
+"Image error.";
+
+}
+
+}
+
+/* NEWS */
+async function news(cat){
+
+const loading =
+add("Loading news...","ai");
+
+loading.classList.add("loading");
+
+try{
+
+const r =
+await fetch(
+"/api/news?category="+cat
+);
+
+const d =
+await r.json();
+
+loading.remove();
+
+let out="";
+
+d.articles
+.slice(0,5)
+.forEach(a=>{
+
+out+=`
+<b>${a.title}</b><br>
+${a.description || ""}
+<br><br>
+`;
+
+});
+
+add(out,"ai");
+
+}catch{
+
+loading.innerHTML =
+"News error.";
+
+}
+
+}
+
+/* WEATHER */
+async function weather(){
+
+const loading =
+add("Loading weather...","ai");
+
+loading.classList.add("loading");
+
+try{
+
+const r =
+await fetch(
+"https://wttr.in/?format=j1"
+);
+
+const d =
+await r.json();
+
+loading.remove();
+
+add(`
+🌍 ${d.nearest_area[0].areaName[0].value}<br>
+🌡 ${d.current_condition[0].temp_C}°C<br>
+☁ ${d.current_condition[0].weatherDesc[0].value}
+`,"ai");
+
+}catch{
+
+loading.innerHTML =
+"Weather error.";
+
+}
+
+}
+
+/* BUTTONS */
+document
+.getElementById("send")
+.onclick=send;
+
+document
+.getElementById("imgbtn")
+.onclick=generateImage;
+
+/* ENTER */
+input.addEventListener(
+"keydown",
+e=>{
+
+if(
+e.key==="Enter"
+&&!e.shiftKey
+){
+
+e.preventDefault();
+
+send();
+
+}
+
+}
+);
+
+</script>
+
+</body>
+</html>
+```
